@@ -45,6 +45,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="卡片操作"
             className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -59,7 +60,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
                 onClick={() => { onPin(idea.id); setMenuOpen(false); }}
                 className="flex w-full items-center gap-2 px-3.5 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] transition-colors"
               >
-                <span>{idea.pinned ? "📌" : "📌"}</span>
+                <span>📌</span>
                 <span>{idea.pinned ? "取消置顶" : "置顶"}</span>
               </button>
               <button

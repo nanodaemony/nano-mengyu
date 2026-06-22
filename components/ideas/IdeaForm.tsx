@@ -16,15 +16,24 @@ export default function IdeaForm({ onCreated }: IdeaFormProps) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    await fetch("/api/ideas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: title.trim(),
-        content: content.trim(),
-        tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
-      }),
-    });
+    try {
+      const res = await fetch("/api/ideas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim(),
+          tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+        }),
+      });
+      if (!res.ok) {
+        console.error("Failed to create idea:", res.status, res.statusText);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to create idea:", err);
+      return;
+    }
     setTitle("");
     setContent("");
     setTags("");

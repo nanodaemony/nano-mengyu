@@ -8,13 +8,25 @@ import Button from "@/components/ui/Button";
 
 export default function IdeaGrid() {
   const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const fetchIdeas = useCallback(async () => {
-    const res = await fetch("/api/ideas");
-    const data = await res.json();
-    setIdeas(data);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ideas");
+      if (!res.ok) {
+        console.error("Failed to fetch ideas:", res.status, res.statusText);
+        return;
+      }
+      const data = await res.json();
+      setIdeas(data);
+    } catch (err) {
+      console.error("Failed to fetch ideas:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchIdeas(); }, [fetchIdeas]);
@@ -51,11 +63,20 @@ export default function IdeaGrid() {
 
   async function handleArchive(id: string) {
     const action = showArchived ? "unarchive" : "archive";
-    await fetch("/api/ideas", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, action }),
-    });
+    try {
+      const res = await fetch("/api/ideas", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action }),
+      });
+      if (!res.ok) {
+        console.error("Failed to archive idea:", res.status, res.statusText);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to archive idea:", err);
+      return;
+    }
     fetchIdeas();
   }
 
@@ -63,11 +84,20 @@ export default function IdeaGrid() {
     const idea = ideas.find((i) => i.id === id);
     if (!idea) return;
     const action = idea.pinned ? "unpin" : "pin";
-    await fetch("/api/ideas", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, action }),
-    });
+    try {
+      const res = await fetch("/api/ideas", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action }),
+      });
+      if (!res.ok) {
+        console.error("Failed to pin idea:", res.status, res.statusText);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to pin idea:", err);
+      return;
+    }
     fetchIdeas();
   }
 
@@ -128,6 +158,11 @@ export default function IdeaGrid() {
                 showUnarchive={showArchived}
               />
             ))}
+          </div>
+        ) : loading ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-border)] border-t-primary-500 mb-3" />
+            <p className="text-sm text-[var(--color-text-secondary)]">加载中...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-center">
