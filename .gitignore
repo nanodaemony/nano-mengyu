@@ -5,3 +5,9 @@ node_modules/
 
 # 本地数据（不提交到版本库）
 data/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# SDD workspace (subagent-driven development artifacts)
+.superpowers/
