@@ -2,3 +2,6 @@ node_modules/
 .next/
 *.local
 .env
+
+# 本地数据（不提交到版本库）
+data/

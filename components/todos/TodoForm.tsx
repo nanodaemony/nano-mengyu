@@ -7,6 +7,12 @@ interface TodoFormProps {
   onCreated: () => void;
 }
 
+const PRIORITIES = [
+  { value: "high" as const, label: "高" },
+  { value: "medium" as const, label: "中" },
+  { value: "low" as const, label: "低" },
+];
+
 export default function TodoForm({ onCreated }: TodoFormProps) {
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<"high" | "medium" | "low">("medium");
@@ -24,23 +30,36 @@ export default function TodoForm({ onCreated }: TodoFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <Input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="添加新的待办..."
-        className="flex-1"
-      />
-      <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value as typeof priority)}
-        className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 text-sm"
-      >
-        <option value="high">高</option>
-        <option value="medium">中</option>
-        <option value="low">低</option>
-      </select>
-      <Button type="submit" size="sm">添加</Button>
+    <form onSubmit={handleSubmit} className="flex items-end gap-3">
+      <div className="flex-1">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="添加新的待办..."
+        />
+      </div>
+
+      {/* Priority toggle */}
+      <div className="flex rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-0.5">
+        {PRIORITIES.map((p) => (
+          <button
+            key={p.value}
+            type="button"
+            onClick={() => setPriority(p.value)}
+            className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
+              priority === p.value
+                ? "bg-[var(--color-surface)] text-[var(--color-text)] shadow-[0_1px_2px_rgba(30,27,46,0.06)]"
+                : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <Button type="submit" size="md">
+        添加
+      </Button>
     </form>
   );
 }

@@ -45,25 +45,44 @@ export default function WatchList() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* Add form */}
       <div className="flex gap-2">
         <Input value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="TSLA" className="w-24" />
         <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="关注理由" className="flex-1" />
-        <Button onClick={handleAdd} size="sm">添加</Button>
+        <Button onClick={handleAdd} size="md" variant="primary">添加</Button>
       </div>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {items.map((item) => (
-          <Card key={item.symbol}>
-            <div className="flex items-center justify-between">
-              <span className="font-medium">{item.symbol}</span>
-              <button onClick={() => handleDelete(item.symbol)} className="text-xs text-red-500 hover:text-red-700">删除</button>
-            </div>
-            {item.reason && (
-              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{item.reason}</p>
-            )}
-          </Card>
-        ))}
-      </div>
+
+      {/* Watchlist grid */}
+      {items.length > 0 ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {items.map((item) => (
+            <Card key={item.symbol} elevation="sm" className="group">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-semibold text-sm text-module-stocks">{item.symbol}</span>
+                  {item.addedAt && (
+                    <span className="text-xs text-[var(--color-text-tertiary)]">{item.addedAt}</span>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleDelete(item.symbol)}
+                  className="text-xs text-[var(--color-text-tertiary)] opacity-0 group-hover:opacity-100 hover:text-status-danger transition-all duration-150"
+                >
+                  ✕
+                </button>
+              </div>
+              {item.reason && (
+                <p className="mt-1.5 text-xs text-[var(--color-text-secondary)] leading-relaxed">{item.reason}</p>
+              )}
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-8 text-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+          <p className="text-sm text-[var(--color-text-secondary)]">还没有自选股</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -40,9 +40,25 @@ export default function TodoList() {
     return prio[a.priority] - prio[b.priority];
   });
 
+  const doneCount = todos.filter((t) => t.done).length;
+
   return (
     <div className="space-y-4">
       <TodoForm onCreated={fetchTodos} />
+
+      {/* Summary */}
+      {todos.length > 0 && (
+        <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)] px-1">
+          <span>共 {todos.length} 项</span>
+          <span className="w-1 h-1 rounded-full bg-[var(--color-border)]" />
+          <span>已完成 {doneCount}</span>
+          {doneCount === todos.length && todos.length > 0 && (
+            <span className="text-module-todos">🎉 全部完成！</span>
+          )}
+        </div>
+      )}
+
+      {/* List */}
       <div className="space-y-2">
         {sorted.map((todo) => (
           <TodoItem
@@ -53,7 +69,11 @@ export default function TodoList() {
           />
         ))}
         {sorted.length === 0 && (
-          <p className="text-center text-sm text-[var(--color-text-secondary)]">还没有待办，添加一条吧</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-3xl mb-3">📋</p>
+            <p className="text-sm text-[var(--color-text-secondary)]">还没有待办事项</p>
+            <p className="text-xs text-[var(--color-text-tertiary)] mt-1">在上方添加一条吧</p>
+          </div>
         )}
       </div>
     </div>

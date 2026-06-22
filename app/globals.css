@@ -3,45 +3,85 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --font-sans: "Inter", system-ui, sans-serif;
+  /* Primary — soft purple anchor */
+  --color-primary-50: #f5f3ff;
+  --color-primary-100: #ede9fe;
+  --color-primary-200: #ddd6fe;
+  --color-primary-300: #c4b5fd;
+  --color-primary-400: #a78bfa;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-800: #5b21b6;
+  --color-primary-900: #4c1d95;
+
+  /* Module identity */
+  --color-module-stocks: #818cf8;
+  --color-module-todos: #34d399;
+  --color-module-ideas: #fbbf24;
+
+  /* Status */
+  --color-status-success: #34d399;
+  --color-status-warning: #fbbf24;
+  --color-status-danger: #f87171;
+  --color-status-info: #60a5fa;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 }
 
 @layer base {
   :root {
-    --color-bg: #ffffff;
-    --color-surface: #f8fafc;
-    --color-surface-hover: #f1f5f9;
-    --color-border: #e2e8f0;
-    --color-text: #0f172a;
-    --color-text-secondary: #64748b;
+    --color-bg: #f8f7ff;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f5f3ff;
+    --color-surface-alt: #f3f1fb;
+    --color-text: #1c1b2e;
+    --color-text-secondary: #6b6580;
+    --color-text-tertiary: #a5a0b5;
+    --color-border: #e8e4f4;
+    --color-border-light: #f0edf8;
   }
 
   .dark {
-    --color-bg: #0f172a;
-    --color-surface: #1e293b;
-    --color-surface-hover: #334155;
-    --color-border: #334155;
-    --color-text: #f1f5f9;
-    --color-text-secondary: #94a3b8;
+    --color-bg: #0f0e1a;
+    --color-surface: #1a1930;
+    --color-surface-hover: #252344;
+    --color-surface-alt: #1f1e38;
+    --color-text: #eeeef8;
+    --color-text-secondary: #9490b5;
+    --color-text-tertiary: #6b6580;
+    --color-border: #2d2b45;
+    --color-border-light: #252344;
   }
 
-  *, *::before, *::after {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  *,
+  *::before,
+  *::after {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   body {
     background-color: var(--color-bg);
     color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Thin custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
   }
 }
