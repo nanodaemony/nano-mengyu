@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Idea } from "@/lib/ideas/types";
 import Badge from "@/components/ui/Badge";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface IdeaCardProps {
   idea: Idea;
@@ -15,6 +16,9 @@ const tagVariants = ["default", "success", "warning", "info"] as const;
 
 export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false }: IdeaCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentOverflows, setContentOverflows] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,6 +33,13 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
+  // Check if content overflows the collapsed container
+  useEffect(() => {
+    if (contentRef.current) {
+      setContentOverflows(contentRef.current.scrollHeight > contentRef.current.clientHeight);
+    }
+  }, [idea.content]);
+
   return (
     <div
       className={`rounded-xl border border-[var(--color-border)] p-5 shadow-[0_1px_3px_rgba(30,27,46,0.06),0_1px_2px_rgba(30,27,46,0.04)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] ${
@@ -39,7 +50,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
     >
       {/* Header with title and menu */}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-[var(--color-text)] line-clamp-2 flex-1">
+        <h3 className="text-lg font-semibold text-[var(--color-text)] line-clamp-2 flex-1">
           {idea.title}
         </h3>
         <div className="relative" ref={menuRef}>
@@ -58,14 +69,14 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
             <div className="absolute right-0 top-9 z-20 min-w-[120px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-lg">
               <button
                 onClick={() => { onPin(idea.id); setMenuOpen(false); }}
-                className="flex w-full items-center gap-2 px-3.5 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                className="flex w-full items-center gap-2 px-3.5 py-2 text-base text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] transition-colors"
               >
                 <span>📌</span>
                 <span>{idea.pinned ? "取消置顶" : "置顶"}</span>
               </button>
               <button
                 onClick={() => { onArchive(idea.id); setMenuOpen(false); }}
-                className="flex w-full items-center gap-2 px-3.5 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] transition-colors"
+                className="flex w-full items-center gap-2 px-3.5 py-2 text-base text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] transition-colors"
               >
                 <span>📦</span>
                 <span>{showUnarchive ? "取消归档" : "归档"}</span>
@@ -75,11 +86,26 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
         </div>
       </div>
 
-      {/* Content */}
+      {/* Markdown content with expand/collapse */}
       {idea.content && (
-        <p className="mt-2 text-sm text-[var(--color-text-secondary)] whitespace-pre-wrap line-clamp-4 leading-relaxed">
-          {idea.content}
-        </p>
+        <div className="mt-3">
+          <div
+            ref={contentRef}
+            className={`overflow-hidden transition-all duration-200 ${
+              expanded ? "max-h-none" : "max-h-[300px]"
+            }`}
+          >
+            <MarkdownRenderer content={idea.content} />
+          </div>
+          {(contentOverflows || expanded) && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="mt-2 text-sm font-medium text-primary-500 hover:text-primary-600 transition-colors"
+            >
+              {expanded ? "收起 ▲" : "展开全文 ▼"}
+            </button>
+          )}
+        </div>
       )}
 
       {/* Tags */}
@@ -92,7 +118,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
       </div>
 
       {/* Date */}
-      <p className="mt-3 text-xs text-[var(--color-text-tertiary)]">
+      <p className="mt-3 text-sm text-[var(--color-text-tertiary)]">
         {idea.createdAt}
       </p>
     </div>
