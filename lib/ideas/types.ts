@@ -4,4 +4,6 @@ export interface Idea {
   content: string;
   tags: string[];
   createdAt: string;
+  pinned: boolean;
+  archived: boolean;
 }
