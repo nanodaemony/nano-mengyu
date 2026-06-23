@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 
 const MODULES = [
   {
@@ -81,6 +82,9 @@ export default function HomePage() {
       <p className="mt-10 text-center text-xs text-[var(--color-text-tertiary)]">
         数据存储于本地，仅你可见
       </p>
+
+      {/* Theme toggle */}
+      <ThemeToggle />
     </div>
   );
 }
