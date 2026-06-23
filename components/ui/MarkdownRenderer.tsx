@@ -31,32 +31,32 @@ interface MarkdownRendererProps {
 const components: Components = {
   // ── Headings ──
   h1: ({ children, ...props }) => (
-    <h1 className="mb-3 mt-5 text-xl font-bold text-[var(--color-text)] first:mt-0" {...props}>
+    <h1 className="mb-3 mt-5 text-xl font-bold text-[var(--color-text)] opacity-80 first:mt-0" {...props}>
       {children}
     </h1>
   ),
   h2: ({ children, ...props }) => (
-    <h2 className="mb-2 mt-4 text-lg font-semibold text-[var(--color-text)]" {...props}>
+    <h2 className="mb-2 mt-4 text-lg font-semibold text-[var(--color-text)] opacity-80" {...props}>
       {children}
     </h2>
   ),
   h3: ({ children, ...props }) => (
-    <h3 className="mb-2 mt-3 text-base font-bold text-[var(--color-text)]" {...props}>
+    <h3 className="mb-2 mt-3 text-base font-bold text-[var(--color-text)] opacity-80" {...props}>
       {children}
     </h3>
   ),
   h4: ({ children, ...props }) => (
-    <h4 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)]" {...props}>
+    <h4 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)] opacity-80" {...props}>
       {children}
     </h4>
   ),
   h5: ({ children, ...props }) => (
-    <h5 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)]" {...props}>
+    <h5 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)] opacity-80" {...props}>
       {children}
     </h5>
   ),
   h6: ({ children, ...props }) => (
-    <h6 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)]" {...props}>
+    <h6 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)] opacity-80" {...props}>
       {children}
     </h6>
   ),

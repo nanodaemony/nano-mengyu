@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     title: body.title,
     content: body.content,
     tags: body.tags ?? [],
-    createdAt: new Date().toISOString().split("T")[0],
+    createdAt: new Date().toISOString().slice(0, 16).replace("T", " "),
     pinned: false,
     archived: false,
   };
