@@ -50,7 +50,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
     >
       {/* Header with title and menu */}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-lg font-semibold text-[var(--color-text)] line-clamp-2 flex-1">
+        <h3 className="text-[22px] font-semibold text-[var(--color-text)] line-clamp-2 flex-1">
           {idea.title}
         </h3>
         <div className="relative" ref={menuRef}>

@@ -24,14 +24,24 @@ const components: Components = {
     </h2>
   ),
   h3: ({ children, ...props }) => (
-    <h3 className="mb-2 mt-3 text-base font-semibold text-[var(--color-text)]" {...props}>
+    <h3 className="mb-2 mt-3 text-base font-bold text-[var(--color-text)]" {...props}>
       {children}
     </h3>
   ),
   h4: ({ children, ...props }) => (
-    <h4 className="mb-1 mt-2 text-sm font-semibold text-[var(--color-text)]" {...props}>
+    <h4 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)]" {...props}>
       {children}
     </h4>
+  ),
+  h5: ({ children, ...props }) => (
+    <h5 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)]" {...props}>
+      {children}
+    </h5>
+  ),
+  h6: ({ children, ...props }) => (
+    <h6 className="mb-1 mt-2 text-base font-bold text-[var(--color-text)]" {...props}>
+      {children}
+    </h6>
   ),
 
   // ── Paragraph ──
