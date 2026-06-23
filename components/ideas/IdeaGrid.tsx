@@ -134,7 +134,7 @@ export default function IdeaGrid() {
           onClick={() => { setShowArchived(!showArchived); setSelectedTag(null); }}
           className="w-full"
         >
-          {showArchived ? "← 返回活跃卡片" : "📦 归档"}
+          {showArchived ? "← 返回活跃卡片" : "📦 查看已归档"}
         </Button>
       </div>
 
