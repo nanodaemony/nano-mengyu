@@ -6,12 +6,13 @@ import Card from "@/components/ui/Card";
 
 interface IdeaFormProps {
   onCreated: () => void;
+  availableTags?: string[];
 }
 
-export default function IdeaForm({ onCreated }: IdeaFormProps) {
+export default function IdeaForm({ onCreated, availableTags = [] }: IdeaFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [tags, setTags] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -25,7 +26,7 @@ export default function IdeaForm({ onCreated }: IdeaFormProps) {
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
-          tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+          tags: selectedTags,
         }),
       });
       if (!res.ok) {
@@ -38,8 +39,14 @@ export default function IdeaForm({ onCreated }: IdeaFormProps) {
     }
     setTitle("");
     setContent("");
-    setTags("");
+    setSelectedTags([]);
     onCreated();
+  }
+
+  function toggleTag(tag: string) {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
   }
 
   async function handlePaste(e: React.ClipboardEvent<HTMLTextAreaElement>) {
@@ -117,9 +124,9 @@ export default function IdeaForm({ onCreated }: IdeaFormProps) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onPaste={handlePaste}
-            placeholder="写下你的灵感...（支持粘贴图片）"
+            placeholder="输入内容，支持Markdown"
             rows={10}
-            className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-base text-[var(--color-text)] placeholder:text-[var(--color-text-tertiary)] transition-all duration-150 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 resize-y min-h-[120px]"
+            className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-sm text-[var(--color-text)] placeholder:text-sm placeholder:text-[var(--color-text-tertiary)] transition-all duration-150 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 resize-y min-h-[120px]"
           />
           {uploading && (
             <p className="text-sm text-[var(--color-text-tertiary)]">
@@ -127,12 +134,41 @@ export default function IdeaForm({ onCreated }: IdeaFormProps) {
             </p>
           )}
         </div>
-        <Input
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          placeholder="标签1, 标签2, 标签3"
-          label="标签（英文逗号分隔）"
-        />
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-[var(--color-text-secondary)] tracking-wide uppercase">
+            标签
+          </label>
+          {availableTags.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {availableTags.map((tag) => {
+                const active = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                      active
+                        ? "bg-primary-600 text-white shadow-sm"
+                        : "bg-black/[0.07] dark:bg-white/[0.12] text-[var(--color-text-secondary)] hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900/30 dark:hover:text-primary-300"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-[var(--color-text-tertiary)]">
+              尚未创建标签，保存后自动生成
+            </p>
+          )}
+          {selectedTags.length > 0 && (
+            <p className="text-xs text-[var(--color-text-tertiary)]">
+              已选 {selectedTags.length} 个标签
+            </p>
+          )}
+        </div>
         <div className="flex justify-end">
           <Button type="submit" variant="primary">
             保存

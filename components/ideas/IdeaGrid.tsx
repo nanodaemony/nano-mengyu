@@ -102,10 +102,10 @@ export default function IdeaGrid() {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-7 gap-6">
       {/* Left column — form + archive button */}
-      <div className="col-span-1 flex flex-col gap-4">
-        <IdeaForm onCreated={fetchIdeas} />
+      <div className="col-span-3 flex flex-col gap-4">
+        <IdeaForm onCreated={fetchIdeas} availableTags={allTags} />
         <Button
           variant={showArchived ? "primary" : "secondary"}
           onClick={() => { setShowArchived(!showArchived); setSelectedTag(null); }}
@@ -116,7 +116,7 @@ export default function IdeaGrid() {
       </div>
 
       {/* Right column — tags + cards */}
-      <div className="col-span-2 flex flex-col gap-4">
+      <div className="col-span-4 flex flex-col gap-4">
         {/* Tag filter bar */}
         {!showArchived && allTags.length > 0 && (
           <div className="flex flex-wrap gap-2 pb-2">
