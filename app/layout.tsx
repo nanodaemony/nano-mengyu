@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import RootClient from "./RootClient";
 
 export const metadata: Metadata = {
   title: "个人门户",
@@ -13,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="min-h-screen">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <RootClient>{children}</RootClient>
+          {children}
         </ThemeProvider>
       </body>
     </html>
