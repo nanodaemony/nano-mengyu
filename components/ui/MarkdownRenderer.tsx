@@ -4,7 +4,24 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import { visit } from "unist-util-visit";
 import type { Components } from "react-markdown";
+
+// Rehype plugin: inject data-offset attribute on block elements
+function rehypeAddPositions() {
+  return (tree: any) => {
+    visit(tree, (node: any) => {
+      if (
+        node.type === "element" &&
+        ["h1","h2","h3","h4","h5","h6","p","li","pre","blockquote","hr","td","th"].includes(node.tagName) &&
+        node.position?.start?.offset != null
+      ) {
+        node.properties = node.properties || {};
+        node.properties.dataOffset = String(node.position.start.offset);
+      }
+    });
+  };
+}
 
 interface MarkdownRendererProps {
   content: string;
@@ -157,7 +174,7 @@ export default function MarkdownRenderer({ content, className = "" }: MarkdownRe
     <div className={className}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
+        rehypePlugins={[rehypeRaw, rehypeAddPositions]}
         components={components}
       >
         {content}

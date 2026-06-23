@@ -11,6 +11,23 @@ export default function IdeaGrid() {
   const [loading, setLoading] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
+  const [editOffset, setEditOffset] = useState<number | undefined>(undefined);
+  const [formDirty, setFormDirty] = useState(false);
+
+  function handleEditCard(idea: Idea, offset?: number) {
+    if (formDirty) {
+      if (!window.confirm("当前表单已有内容，是否覆盖？")) return;
+    }
+    setEditingIdea(idea);
+    setEditOffset(offset);
+  }
+
+  function handleFormCreated() {
+    setEditingIdea(null);
+    setEditOffset(undefined);
+    fetchIdeas();
+  }
 
   const fetchIdeas = useCallback(async () => {
     setLoading(true);
@@ -105,7 +122,13 @@ export default function IdeaGrid() {
     <div className="grid grid-cols-7 gap-6">
       {/* Left column — form + archive button */}
       <div className="col-span-3 flex flex-col gap-4">
-        <IdeaForm onCreated={fetchIdeas} availableTags={allTags} />
+        <IdeaForm
+          onCreated={handleFormCreated}
+          availableTags={allTags}
+          editIdea={editingIdea}
+          editOffset={editOffset}
+          onDirtyChange={setFormDirty}
+        />
         <Button
           variant={showArchived ? "primary" : "secondary"}
           onClick={() => { setShowArchived(!showArchived); setSelectedTag(null); }}
@@ -122,9 +145,9 @@ export default function IdeaGrid() {
           <div className="flex flex-wrap gap-2 pb-2">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
                 !selectedTag
-                  ? "bg-primary-500 text-white"
+                  ? "bg-blue-500 text-white"
                   : "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
               }`}
             >
@@ -134,9 +157,9 @@ export default function IdeaGrid() {
               <button
                 key={tag}
                 onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
                   selectedTag === tag
-                    ? "bg-primary-500 text-white"
+                    ? "bg-blue-500 text-white"
                     : "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
                 }`}
               >
@@ -155,6 +178,7 @@ export default function IdeaGrid() {
                 idea={idea}
                 onArchive={handleArchive}
                 onPin={handlePin}
+                onEdit={handleEditCard}
                 showUnarchive={showArchived}
               />
             ))}

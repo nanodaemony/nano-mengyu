@@ -1,42 +1,102 @@
 "use client";
 
-import { useState, FormEvent, useRef } from "react";
+import { useState, FormEvent, useRef, useEffect } from "react";
 import { Button, Input } from "@/components/ui";
 import Card from "@/components/ui/Card";
+import { Idea } from "@/lib/ideas/types";
 
 interface IdeaFormProps {
   onCreated: () => void;
   availableTags?: string[];
+  editIdea?: Idea | null;
+  editOffset?: number;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
-export default function IdeaForm({ onCreated, availableTags = [] }: IdeaFormProps) {
+export default function IdeaForm({ onCreated, availableTags = [], editIdea, editOffset, onDirtyChange }: IdeaFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isEditing = !!editIdea;
+
+  // Populate form when editIdea changes
+  useEffect(() => {
+    if (editIdea) {
+      setTitle(editIdea.title);
+      setContent(editIdea.content ?? "");
+      setSelectedTags(editIdea.tags ?? []);
+      // Focus, scroll to textarea, and position cursor at clicked offset
+      requestAnimationFrame(() => {
+        const ta = textareaRef.current;
+        if (!ta) return;
+        ta.focus();
+        ta.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (editOffset !== undefined && editOffset <= ta.value.length) {
+          ta.setSelectionRange(editOffset, editOffset);
+          // Estimate scroll position: roughly (offset / total) * scrollHeight
+          const ratio = editOffset / Math.max(ta.value.length, 1);
+          ta.scrollTop = ratio * ta.scrollHeight - ta.clientHeight / 2;
+        }
+      });
+    }
+  }, [editIdea, editOffset]);
+
+  // Report dirty state to parent
+  useEffect(() => {
+    const isDirty = title !== "" || content !== "" || selectedTags.length > 0;
+    onDirtyChange?.(isDirty);
+  }, [title, content, selectedTags, onDirtyChange]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    try {
-      const res = await fetch("/api/ideas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          content: content.trim(),
-          tags: selectedTags,
-        }),
-      });
-      if (!res.ok) {
-        console.error("Failed to create idea:", res.status, res.statusText);
+
+    if (isEditing && editIdea) {
+      // Update existing idea
+      try {
+        const res = await fetch("/api/ideas", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editIdea.id,
+            action: "update",
+            title: title.trim(),
+            content: content.trim(),
+            tags: selectedTags,
+          }),
+        });
+        if (!res.ok) {
+          console.error("Failed to update idea:", res.status, res.statusText);
+          return;
+        }
+      } catch (err) {
+        console.error("Failed to update idea:", err);
         return;
       }
-    } catch (err) {
-      console.error("Failed to create idea:", err);
-      return;
+    } else {
+      // Create new idea
+      try {
+        const res = await fetch("/api/ideas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: title.trim(),
+            content: content.trim(),
+            tags: selectedTags,
+          }),
+        });
+        if (!res.ok) {
+          console.error("Failed to create idea:", res.status, res.statusText);
+          return;
+        }
+      } catch (err) {
+        console.error("Failed to create idea:", err);
+        return;
+      }
     }
+
     setTitle("");
     setContent("");
     setSelectedTags([]);
@@ -147,10 +207,10 @@ export default function IdeaForm({ onCreated, availableTags = [] }: IdeaFormProp
                     key={tag}
                     type="button"
                     onClick={() => toggleTag(tag)}
-                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
                       active
-                        ? "bg-primary-600 text-white shadow-sm"
-                        : "bg-black/[0.07] dark:bg-white/[0.12] text-[var(--color-text-secondary)] hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900/30 dark:hover:text-primary-300"
+                        ? "bg-blue-500 text-white shadow-sm"
+                        : "bg-black/[0.07] dark:bg-white/[0.12] text-[var(--color-text-secondary)] hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
                     }`}
                   >
                     {tag}
@@ -170,8 +230,8 @@ export default function IdeaForm({ onCreated, availableTags = [] }: IdeaFormProp
           )}
         </div>
         <div className="flex justify-end">
-          <Button type="submit" variant="primary">
-            保存
+          <Button type="submit" variant="primary" className="!bg-blue-500 hover:!bg-blue-600 !shadow-[0_1px_3px_rgba(59,130,246,0.3)] hover:!shadow-[0_2px_6px_rgba(59,130,246,0.4)]">
+            {isEditing ? "更新" : "保存"}
           </Button>
         </div>
       </form>

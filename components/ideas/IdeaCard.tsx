@@ -9,17 +9,42 @@ interface IdeaCardProps {
   idea: Idea;
   onArchive: (id: string) => void;
   onPin: (id: string) => void;
+  onEdit?: (idea: Idea, offset?: number) => void;
   showUnarchive?: boolean;
 }
 
 const tagVariants = ["default", "success", "warning", "info"] as const;
 
-export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false }: IdeaCardProps) {
+export default function IdeaCard({ idea, onArchive, onPin, onEdit, showUnarchive = false }: IdeaCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentOverflows, setContentOverflows] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const clickTimestamps = useRef<number[]>([]);
+
+  function handleContentClick(e: React.MouseEvent) {
+    const now = Date.now();
+    const recent = clickTimestamps.current.filter(t => now - t < 500);
+    recent.push(now);
+    clickTimestamps.current = recent;
+
+    if (recent.length >= 3) {
+      clickTimestamps.current = [];
+      // Look for data-offset on the clicked element or its ancestors
+      let target = e.target as HTMLElement | null;
+      let offset: number | undefined;
+      while (target && target !== e.currentTarget) {
+        const val = target.getAttribute("data-offset");
+        if (val !== null) {
+          offset = parseInt(val, 10);
+          break;
+        }
+        target = target.parentElement;
+      }
+      onEdit?.(idea, isNaN(offset!) ? undefined : offset);
+    }
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -42,7 +67,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
 
   return (
     <div
-      className={`rounded-xl border border-[var(--color-border)] p-5 shadow-[0_1px_3px_rgba(30,27,46,0.06),0_1px_2px_rgba(30,27,46,0.04)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] ${
+      className={`rounded-xl border border-[var(--color-border)] p-4 shadow-[0_1px_3px_rgba(30,27,46,0.06),0_1px_2px_rgba(30,27,46,0.04)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] ${
         idea.pinned
           ? "bg-amber-50 dark:bg-amber-900/20"
           : "bg-[var(--color-surface-alt)]"
@@ -50,7 +75,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
     >
       {/* Header with title and menu */}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-[22px] font-semibold text-[var(--color-text)] line-clamp-2 flex-1">
+        <h3 className="text-[22px] font-semibold text-blue-500 dark:text-blue-400 line-clamp-2 flex-1">
           {idea.title}
         </h3>
         <div className="relative" ref={menuRef}>
@@ -88,7 +113,7 @@ export default function IdeaCard({ idea, onArchive, onPin, showUnarchive = false
 
       {/* Markdown content with expand/collapse */}
       {idea.content && (
-        <div className="mt-3">
+        <div className="mt-3" onClick={handleContentClick}>
           <div
             ref={contentRef}
             className={`overflow-hidden transition-all duration-200 ${

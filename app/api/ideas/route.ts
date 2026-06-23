@@ -73,7 +73,8 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const { id, action } = await request.json();
+  const body = await request.json();
+  const { id, action } = body;
   const ideas = await readJSON<Idea>(FILE);
   const index = ideas.findIndex((i) => i.id === id);
   if (index === -1) {
@@ -92,6 +93,11 @@ export async function PATCH(request: NextRequest) {
       break;
     case "unarchive":
       ideas[index].archived = false;
+      break;
+    case "update":
+      if (body.title !== undefined) ideas[index].title = body.title;
+      if (body.content !== undefined) ideas[index].content = body.content;
+      if (body.tags !== undefined) ideas[index].tags = body.tags;
       break;
     default:
       return Response.json({ error: "Invalid action" }, { status: 400 });
