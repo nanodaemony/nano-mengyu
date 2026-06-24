@@ -98,7 +98,22 @@ export default function IdeaCard({ idea, onArchive, onPin, onEdit, showUnarchive
         {idea.content && (
           <div className="relative shrink-0">
             <button
-              onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(idea.content).then(() => setCopied(true)).catch(() => {}); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                try {
+                  const ta = document.createElement("textarea");
+                  ta.value = idea.content;
+                  ta.style.position = "fixed";
+                  ta.style.opacity = "0";
+                  document.body.appendChild(ta);
+                  ta.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(ta);
+                } catch (err) {
+                  console.error("Copy failed:", err);
+                }
+                setCopied(true);
+              }}
               aria-label="复制内容"
               title="复制 Markdown 内容"
               className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] transition-colors"
