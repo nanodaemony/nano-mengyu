@@ -98,7 +98,7 @@ export default function IdeaCard({ idea, onArchive, onPin, onEdit, showUnarchive
         {idea.content && (
           <div className="relative shrink-0">
             <button
-              onClick={() => { navigator.clipboard.writeText(idea.content); setCopied(true); }}
+              onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(idea.content).then(() => setCopied(true)).catch(() => {}); }}
               aria-label="复制内容"
               title="复制 Markdown 内容"
               className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)] transition-colors"
