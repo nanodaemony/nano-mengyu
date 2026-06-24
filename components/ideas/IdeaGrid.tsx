@@ -151,9 +151,9 @@ export default function IdeaGrid() {
 
   return (
     <>
-    <div className="grid grid-cols-7 gap-6">
+    <div className="flex flex-col lg:grid lg:grid-cols-7 gap-6">
       {/* Left column — form + archive button */}
-      <div className="col-span-3 flex flex-col gap-4">
+      <div className="lg:col-span-3 flex flex-col gap-4">
         <IdeaForm
           onCreated={handleFormCreated}
           availableTags={allTags}
@@ -172,7 +172,7 @@ export default function IdeaGrid() {
       </div>
 
       {/* Right column — tags + cards */}
-      <div className="col-span-4 flex flex-col gap-4">
+      <div className="lg:col-span-4 flex flex-col gap-4">
         {/* Tag filter bar */}
         {!showArchived && allTags.length > 0 && (
           <div className="flex flex-wrap gap-2 pb-2">
