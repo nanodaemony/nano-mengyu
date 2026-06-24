@@ -99,6 +99,16 @@ export async function PATCH(request: NextRequest) {
       if (body.content !== undefined) ideas[index].content = body.content;
       if (body.tags !== undefined) ideas[index].tags = body.tags;
       break;
+    case "deleteTag":
+      if (!body.tag || typeof body.tag !== "string") {
+        return Response.json({ error: "Tag is required" }, { status: 400 });
+      }
+      ideas.forEach((idea) => {
+        if (idea.tags?.includes(body.tag)) {
+          idea.tags = idea.tags.filter((t) => t !== body.tag);
+        }
+      });
+      break;
     default:
       return Response.json({ error: "Invalid action" }, { status: 400 });
   }

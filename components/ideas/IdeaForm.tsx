@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useRef, useEffect } from "react";
+import { useState, FormEvent, useRef, useEffect, useMemo } from "react";
 import { Button, Input } from "@/components/ui";
 import Card from "@/components/ui/Card";
 import { Idea } from "@/lib/ideas/types";
@@ -11,12 +11,14 @@ interface IdeaFormProps {
   editIdea?: Idea | null;
   editOffset?: number;
   onDirtyChange?: (dirty: boolean) => void;
+  onDeleteTag?: (tag: string) => void;
 }
 
-export default function IdeaForm({ onCreated, availableTags = [], editIdea, editOffset, onDirtyChange }: IdeaFormProps) {
+export default function IdeaForm({ onCreated, availableTags = [], editIdea, editOffset, onDirtyChange, onDeleteTag }: IdeaFormProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
   const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isEditing = !!editIdea;
@@ -109,6 +111,50 @@ export default function IdeaForm({ onCreated, availableTags = [], editIdea, edit
     );
   }
 
+  const displayTags = useMemo(
+    () => Array.from(new Set([...availableTags, ...selectedTags])),
+    [availableTags, selectedTags]
+  );
+
+  const tagInput = (
+    <div className="flex items-center gap-0.5">
+      <input
+        value={newTag}
+        onChange={(e) => setNewTag(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleAddTag();
+          }
+        }}
+        placeholder="新标签"
+        className="w-[4.5rem] rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-500/20 transition-colors"
+      />
+      <button
+        type="button"
+        onClick={handleAddTag}
+        disabled={!newTag.trim()}
+        className="inline-flex items-center justify-center rounded-lg px-1.5 py-1 text-xs font-medium text-primary-500 hover:text-primary-600 hover:bg-primary-500/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >
+        +
+      </button>
+    </div>
+  );
+
+  function handleAddTag() {
+    const trimmed = newTag.trim();
+    if (!trimmed) return;
+    if (!selectedTags.includes(trimmed)) {
+      setSelectedTags((prev) => [...prev, trimmed]);
+    }
+    setNewTag("");
+  }
+
+  // Clean up selectedTags when a tag is deleted from availableTags
+  useEffect(() => {
+    setSelectedTags((prev) => prev.filter((t) => availableTags.includes(t)));
+  }, [availableTags]);
+
   async function handlePaste(e: React.ClipboardEvent<HTMLTextAreaElement>) {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -198,31 +244,42 @@ export default function IdeaForm({ onCreated, availableTags = [], editIdea, edit
           <label className="block text-sm font-medium text-[var(--color-text-secondary)] tracking-wide uppercase">
             标签
           </label>
-          {availableTags.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {availableTags.map((tag) => {
+          {displayTags.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {displayTags.map((tag) => {
                 const active = selectedTags.includes(tag);
+                const isNew = !availableTags.includes(tag);
                 return (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => toggleTag(tag)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onDeleteTag?.(tag);
+                    }}
                     className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
                       active
                         ? "bg-blue-500 text-white shadow-sm"
                         : "bg-black/[0.07] dark:bg-white/[0.12] text-[var(--color-text-secondary)] hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
-                    }`}
+                    } ${isNew ? "ring-1 ring-blue-500/40" : ""}`}
                   >
                     {tag}
                   </button>
                 );
               })}
+              {tagInput}
             </div>
           ) : (
-            <p className="text-sm text-[var(--color-text-tertiary)]">
-              尚未创建标签，保存后自动生成
-            </p>
+            <>
+              <p className="text-sm text-[var(--color-text-tertiary)] mb-2">
+                尚未创建标签，保存后自动生成
+              </p>
+              {tagInput}
+            </>
           )}
+
           {selectedTags.length > 0 && (
             <p className="text-xs text-[var(--color-text-tertiary)]">
               已选 {selectedTags.length} 个标签

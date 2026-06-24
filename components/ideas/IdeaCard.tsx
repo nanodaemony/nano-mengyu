@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Idea } from "@/lib/ideas/types";
-import Badge from "@/components/ui/Badge";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface IdeaCardProps {
@@ -12,8 +11,6 @@ interface IdeaCardProps {
   onEdit?: (idea: Idea, offset?: number) => void;
   showUnarchive?: boolean;
 }
-
-const tagVariants = ["default", "success", "warning", "info"] as const;
 
 export default function IdeaCard({ idea, onArchive, onPin, onEdit, showUnarchive = false }: IdeaCardProps) {
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
@@ -181,10 +178,13 @@ export default function IdeaCard({ idea, onArchive, onPin, onEdit, showUnarchive
       {/* Tags + Date row */}
       <div className="mt-4 flex items-start gap-3">
         <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
-          {idea.tags?.map((tag, i) => (
-            <Badge key={tag} variant={tagVariants[i % tagVariants.length]}>
+          {idea.tags?.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium bg-black/[0.07] dark:bg-white/[0.12] text-[var(--color-text-secondary)]"
+            >
               {tag}
-            </Badge>
+            </span>
           ))}
         </div>
         <p className="text-sm text-[var(--color-text-tertiary)] whitespace-nowrap shrink-0">

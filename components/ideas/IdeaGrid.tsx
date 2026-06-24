@@ -5,6 +5,7 @@ import { Idea } from "@/lib/ideas/types";
 import IdeaCard from "./IdeaCard";
 import IdeaForm from "./IdeaForm";
 import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
 
 export default function IdeaGrid() {
   const [ideas, setIdeas] = useState<Idea[]>([]);
@@ -14,6 +15,7 @@ export default function IdeaGrid() {
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
   const [editOffset, setEditOffset] = useState<number | undefined>(undefined);
   const [formDirty, setFormDirty] = useState(false);
+  const [deleteTagTarget, setDeleteTagTarget] = useState<{ tag: string; count: number } | null>(null);
 
   function handleEditCard(idea: Idea, offset?: number) {
     if (formDirty) {
@@ -118,7 +120,37 @@ export default function IdeaGrid() {
     fetchIdeas();
   }
 
+  async function confirmDeleteTag() {
+    if (!deleteTagTarget) return;
+    const { tag } = deleteTagTarget;
+    setDeleteTagTarget(null);
+
+    try {
+      const res = await fetch("/api/ideas", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "deleteTag", tag }),
+      });
+      if (!res.ok) {
+        console.error("Failed to delete tag:", res.status, res.statusText);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to delete tag:", err);
+      return;
+    }
+
+    if (selectedTag === tag) setSelectedTag(null);
+    fetchIdeas();
+  }
+
+  function handleFormDeleteTag(tag: string) {
+    const count = ideas.filter((i) => i.tags?.includes(tag)).length;
+    setDeleteTagTarget({ tag, count });
+  }
+
   return (
+    <>
     <div className="grid grid-cols-7 gap-6">
       {/* Left column — form + archive button */}
       <div className="col-span-3 flex flex-col gap-4">
@@ -128,6 +160,7 @@ export default function IdeaGrid() {
           editIdea={editingIdea}
           editOffset={editOffset}
           onDirtyChange={setFormDirty}
+          onDeleteTag={handleFormDeleteTag}
         />
         <Button
           variant={showArchived ? "primary" : "secondary"}
@@ -157,6 +190,12 @@ export default function IdeaGrid() {
               <button
                 key={tag}
                 onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const count = ideas.filter((i) => i.tags?.includes(tag)).length;
+                  setDeleteTagTarget({ tag, count });
+                }}
                 className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
                   selectedTag === tag
                     ? "bg-blue-500 text-white"
@@ -201,5 +240,30 @@ export default function IdeaGrid() {
         )}
       </div>
     </div>
+
+      {/* Tag deletion confirmation modal */}
+      <Modal
+        open={!!deleteTagTarget}
+        onClose={() => setDeleteTagTarget(null)}
+        title="删除标签"
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-[var(--color-text)]">
+            确定删除标签 <strong>「{deleteTagTarget?.tag}」</strong>？
+          </p>
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            将从 <strong>{deleteTagTarget?.count}</strong> 张卡片中移除该标签。
+          </p>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="secondary" onClick={() => setDeleteTagTarget(null)}>
+              取消
+            </Button>
+            <Button variant="danger" onClick={confirmDeleteTag}>
+              确认删除
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 }
