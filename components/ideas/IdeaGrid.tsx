@@ -186,25 +186,34 @@ export default function IdeaGrid() {
             >
               全部
             </button>
-            {allTags.map((tag) => (
+            {allTags.map((tag) => {
+              const tagCount = ideas.filter((i) => !i.archived && i.tags?.includes(tag)).length;
+              return (
               <button
                 key={tag}
                 onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  const count = ideas.filter((i) => i.tags?.includes(tag)).length;
-                  setDeleteTagTarget({ tag, count });
+                  setDeleteTagTarget({ tag, count: tagCount });
                 }}
-                className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
+                className={`relative inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
                   selectedTag === tag
                     ? "bg-blue-500 text-white"
                     : "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
                 }`}
               >
                 {tag}
+                <span className={`ml-1 inline-flex items-center justify-center min-w-[1rem] h-4 rounded-full px-1 text-[10px] font-semibold leading-none ${
+                  selectedTag === tag
+                    ? "bg-white/25 text-white"
+                    : "bg-black/[0.08] dark:bg-white/[0.15] text-[var(--color-text-tertiary)]"
+                }`}>
+                  {tagCount}
+                </span>
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
 
