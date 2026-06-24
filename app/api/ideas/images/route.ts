@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { nanoid } from "nanoid";
 
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const filePath = path.join(IMAGES_DIR, filename);
 
+    await mkdir(IMAGES_DIR, { recursive: true });
     await writeFile(filePath, buffer);
 
     return Response.json({ url: `/api/ideas/images/${filename}` }, { status: 201 });
